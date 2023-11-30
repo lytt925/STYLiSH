@@ -1,0 +1,10 @@
+node_modules
+**/client_secret.json
+**/.DS_Store
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+.env
+.env.production.local

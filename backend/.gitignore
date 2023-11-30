@@ -1,0 +1,11 @@
+**/.env
+**/node_modules
+**/public
+**/client_secret.json
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore .DS_Store files in all subfolders
+**/.DS_Store

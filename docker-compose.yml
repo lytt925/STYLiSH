@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./
+    image: ytlitw/stylish-frontend_nginx
+    ports:
+      - "443:443"
+      - "80:80"
+    dns:
+      - 8.8.8.8
+    networks:
+      - stylish_network
+
+  backend:
+    build: ./backend
+    image: ytlitw/stylish-backend_node
+    env_file:
+      - backend/.env
+    ports:
+      - "4000:4000"
+    dns:
+      - 8.8.8.8
+    networks:
+      - stylish_network
+
+networks:
+  stylish_network:
+    driver: bridge
