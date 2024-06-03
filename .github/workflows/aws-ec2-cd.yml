@@ -1,0 +1,84 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Stylish CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "develop"
+      - "week_[1-9]_part_[1-9]"
+    tags:
+      - "*.*.*"
+  
+
+env:
+  BACKEND_DIR: workspace/vincent/stylish/backend
+  FRONTEND_DIR: workspace/vincent/stylish/frontend
+  APP_DIR: workspace/vincent/stylish
+  EC2_ACCOUNT: ubuntu@44.217.27.217
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: echo path
+        run: |
+          echo "$(pwd)"
+          echo '${{env.APP_DIR}}/docker-compose.yml'
+      - name: echo cert files
+        run: |
+          echo "${{ secrets.CERTIFICATE_CRT }}" > ${{env.APP_DIR}}/private/certificate.crt
+          echo "${{ secrets.PRIVATE_KEY }}" > ${{env.APP_DIR}}/private/private.key
+      - name: Build and push
+        run: |
+          touch ${{env.BACKEND_DIR}}/.env
+          docker-compose -f ${{env.APP_DIR}}/docker-compose.yml build
+          docker-compose -f ${{env.APP_DIR}}/docker-compose.yml push
+
+  deploy:
+    needs: push_to_registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set permissions for private key
+        run: |
+          echo "${{ secrets.AWS_EC2_PEM }}" > aws_ec2.pem
+          chmod 600 aws_ec2.pem
+
+      - name: scp docker-compose.yml to ec2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'rm -rf ~/stylish && mkdir -p ~/stylish/backend'
+          scp -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.APP_DIR}}/docker-compose.yml ${{env.EC2_ACCOUNT}}:~/stylish/docker-compose.yml
+      - name: echo .env to ec2
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+          scp -o StrictHostKeyChecking=no -i aws_ec2.pem .env ${{env.EC2_ACCOUNT}}:~/stylish/backend/.env
+      - name: Remove Unused Docker Images
+        run: |
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'docker container prune -f'
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'docker image prune -a -f'
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'docker volume prune -f'
+        
+      - name: docker compose down
+        run: |
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'cd ~/stylish && docker compose down || true '
+      - name: docker compose pull and up
+        run: |
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'cd ~/stylish && docker compose pull'
+          ssh -o StrictHostKeyChecking=no -i aws_ec2.pem ${{env.EC2_ACCOUNT}} 'cd ~/stylish && docker compose up -d'
