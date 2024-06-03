@@ -1,5 +1,5 @@
 # STYLiSH
-Project done in AppWorks
+Practicing Project done in AppWorks School
 
 ## Backend
 - Use Node.js, MySQL to build the backend service
@@ -9,7 +9,9 @@ Project done in AppWorks
 
 ## Frontend
 - Using React with TypeScript
-- Use styled-components and TailwindCSS for the stylings
+- Use styled-components and Tailwind CSS for the stylings
 - Utilized React-Query to fulfill optimized data fetching
 
-This app had been deployed on AWS EC2 using Github Action for the CI/CD technique
+## DevOps
+- Use Docker as  the virtualization techniques
+- Deployed on AWS EC2 using Github Action for Continuous Deployment
