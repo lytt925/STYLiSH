@@ -66,7 +66,7 @@ TPDirect.card.onUpdate(function (update) {
   /* ============================================== */
 
   // cardTypes = ['visa', 'mastercard', ...]
-  var newType = update.cardType === 'unknown' ? '' : update.cardType
+  let newType = update.cardType === 'unknown' ? '' : update.cardType
   $('#cardtype').text(newType)
 
 
@@ -121,7 +121,7 @@ $('#tappay').on('submit', function (event) {
       alert('get prime error ' + result.msg)
       return
     }
-    // var command = 'get prime 成功，prime: ' + result.card.prime + '\nprime is inserted to the json'
+    // let command = 'get prime 成功，prime: ' + result.card.prime + '\nprime is inserted to the json'
     // document.querySelector('#curl').innerHTML = command
     const jsonData = JSON.parse(document.getElementById("jsonData").value);
     jsonData.prime = result.card.prime;
@@ -149,7 +149,7 @@ function forceBlurIos() {
   if (!isIos()) {
     return
   }
-  var input = document.createElement('input')
+  let input = document.createElement('input')
   input.setAttribute('type', 'text')
   // Insert to active element to ensure scroll lands somewhere relevant
   document.activeElement.prepend(input)

@@ -47,7 +47,7 @@ const insertOrderItems = async (connection, itemsList, orderId) => {
 
 const insertOrderInfoAndItems = async (orderInfo, itemsList) => {
   try {
-    connection = await db.getConnection();
+    let connection = await db.getConnection();
     await connection.beginTransaction();
     const orderId = await insertOrderInfo(connection, orderInfo)
     await insertOrderItems(connection, itemsList, orderId);

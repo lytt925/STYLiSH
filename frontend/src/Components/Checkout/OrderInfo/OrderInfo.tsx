@@ -97,63 +97,64 @@ type OrderInfoProps = {
   setErrors: React.Dispatch<React.SetStateAction<boolean[]>>
 }
 
+
+
 const OrderInfo = ({ recipientData, setRecipientData, errors, setErrors }: OrderInfoProps) => {
+  const validateAndSetState = (name: string, value: string) => {
+    let hasError = false;
+
+    switch (name) {
+      case 'name': {
+        hasError = value.length < 1;
+        break;
+      }
+      case 'phone': {
+        hasError = value.length < 10 || !(/^\d+$/.test(value));
+        break;
+      }
+      case 'address': {
+        hasError = value.length < 1;
+        break;
+      }
+      case 'email': {
+        const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        hasError = !regex.test(value);
+        break;
+      }
+      case 'time': {
+        hasError = !value; // Inverted for clarity: empty value is an error
+        break;
+      }
+      default:
+        // Handle unexpected field names (optional)
+        break;
+    }
+
+
+    type TfieldIndexMap = {
+      name: number;
+      phone: number;
+      address: number;
+      email: number;
+      time: number;
+      [key: string]: number; // Add index signature
+    }
+
+    const fieldIndexMap: TfieldIndexMap = {
+      name: 0,
+      phone: 1,
+      address: 2,
+      email: 3,
+      time: 4
+    }
+
+    errors[name === 'email' ? 3 : fieldIndexMap[name]] = hasError; // Efficient error state update
+  };
+
   const onChanges = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.name === 'name') {
-      const currentState = [...errors]
-      if (e.target.value.length < 1) {
-        currentState[0] = true
-        setErrors(currentState)
-      } else {
-        currentState[0] = false
-        setErrors(currentState)
-      }
-    }
-
-    if (e.target.name === 'phone') {
-      const currentState = [...errors]
-      if (e.target.value.length < 10 || !(/^\d+$/.test(e.target.value))) {
-        currentState[1] = true
-        setErrors(currentState)
-      } else {
-        currentState[1] = false
-        setErrors(currentState)
-      }
-    }
-
-    if (e.target.name === 'address') {
-      const currentState = [...errors]
-      if (e.target.value.length < 1) {
-        currentState[2] = true
-        setErrors(currentState)
-      } else {
-        currentState[2] = false
-        setErrors(currentState)
-      }
-    }
-
-    if (e.target.name === 'email') {
-      const currentState = [...errors]
-      const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-      currentState[3] = !regex.test(e.target.value);
-      setErrors(currentState)
-    }
-
-    if (e.target.name === 'time') {
-      const currentState = [...errors]
-      if (e.target.value) {
-        currentState[4] = false
-        setErrors(currentState)
-      }
-    }
-
-    setRecipientData((prev) => {
-      return {
-        ...prev,
-        [e.target.name]: e.target.value
-      }
-    })
-  }
+    const { name, value } = e.target;
+    validateAndSetState(name, value);
+  };
 
   const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const phoneInput = e.target as HTMLInputElement;

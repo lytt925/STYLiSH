@@ -1,4 +1,10 @@
 FROM node:18.18-alpine
+
+RUN addgroup -S nonroot \
+    && adduser -S nonroot -G nonroot
+
+USER nonroot
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm install

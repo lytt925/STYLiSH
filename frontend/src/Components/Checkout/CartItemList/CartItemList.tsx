@@ -101,66 +101,71 @@ const ShoppingCartTitle = styled.div`
 
 
 const CartItemList = () => {
-    const { cartItems, addItemToCart, removeItemFromCart } = useShoppingCart();
-    const [isRemoveButtonHovered, setIsRemoveButtonHovered] = useState(false);
+  const { cartItems, addItemToCart, removeItemFromCart } = useShoppingCart();
+  const [isRemoveButtonHovered, setIsRemoveButtonHovered] = useState(false);
 
 
 
-    const RemoveButton = (id: number) => (<img
-        onClick={() => removeItemFromCart(id)}
-        onMouseEnter={() => setIsRemoveButtonHovered(true)}
-        onMouseLeave={() => setIsRemoveButtonHovered(false)}
-        src={isRemoveButtonHovered ? RemoveButtonHover : RemoveButtonImg}
-        alt="removeItemFromCart"
-        style={{ cursor: 'pointer' }}
-    />)
-    return (
-        <>
-            <ShoppingCartTitle>
-                購物車
-            </ShoppingCartTitle>
-            <ShoppingCartWrapper>
-                {cartItems.map((item, idx) => (
-                    <CartItemWrapper key={`${item.id}_${item.color.code}_${item.size}`}>
-                        <CartItemInfo>
-                            <CartItemImage src={require('./dress.png')} alt={item.title} />
-                            <CartItemDetail>
-                                <p style={{ marginBottom: '1.125em', lineHeight: '1.1875em' }}>{item.title}</p>
-                                <p style={{ marginBottom: '1.375em', lineHeight: '1.1875em' }}>{item.id}</p>
-                                {
-                                    [{ key: '顏色', value: item.color.name }, { key: '尺寸', value: item.size }].map((detail) => (
-                                        <div key={detail.key} style={{ display: 'flex', marginBottom: '0.625em', alignItems: 'center' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', borderRight: '1px solid black', paddingRight: '6px', height: '1em' }}>
-                                                <p style={{ lineHeight: '1.1875em' }}>{detail.key}</p>
-                                            </div>
-                                            <p style={{ paddingLeft: '6px', lineHeight: '1.1875em' }}>{detail.value}</p>
-                                        </div>
-                                    ))
-                                }
-                            </CartItemDetail>
-                            <FloatRemoveButtonWrapper>
-                                {RemoveButton(item.id)}
-                            </FloatRemoveButtonWrapper>
-                        </CartItemInfo>
-                        <CheckoutInfo>
-                            <DropdownMenu idx={idx} selectedVariant={item} addItemToCart={addItemToCart} />
-                            <DescriptionTag>
-                                {idx === 0 ? <Title>單價</Title> : null}
-                                <p>TWD.{Math.round(item.price)}</p>
-                            </DescriptionTag>
-                            <DescriptionTag>
-                                {idx === 0 ? <Title>小計</Title> : null}
-                                <p>TWD.{Math.round(item.price * item.quantity)}</p>
-                            </DescriptionTag>
-                            <RemoveButtonWrapper>
-                                {RemoveButton(item.id)}
-                            </RemoveButtonWrapper>
-                        </CheckoutInfo>
-                    </CartItemWrapper>
-                ))}
-            </ShoppingCartWrapper>
-        </>
-    )
+  const RemoveButton = (id: number) => (
+    <button
+      onClick={() => removeItemFromCart(id)}
+      onMouseEnter={() => setIsRemoveButtonHovered(true)}
+      onMouseLeave={() => setIsRemoveButtonHovered(false)}
+      type="button" // Set type to "button" to prevent form submission
+      aria-label="Remove item from cart" // Add an aria-label for screen readers
+      style={{ cursor: 'pointer' }}
+    >
+      <img src={isRemoveButtonHovered ? RemoveButtonHover : RemoveButtonImg} alt="removeItemFromCart" />
+    </button>
+  )
+
+  return (
+    <>
+      <ShoppingCartTitle>
+        購物車
+      </ShoppingCartTitle>
+      <ShoppingCartWrapper>
+        {cartItems.map((item, idx) => (
+          <CartItemWrapper key={`${item.id}_${item.color.code}_${item.size}`}>
+            <CartItemInfo>
+              <CartItemImage src={require('./dress.png')} alt={item.title} />
+              <CartItemDetail>
+                <p style={{ marginBottom: '1.125em', lineHeight: '1.1875em' }}>{item.title}</p>
+                <p style={{ marginBottom: '1.375em', lineHeight: '1.1875em' }}>{item.id}</p>
+                {
+                  [{ key: '顏色', value: item.color.name }, { key: '尺寸', value: item.size }].map((detail) => (
+                    <div key={detail.key} style={{ display: 'flex', marginBottom: '0.625em', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', borderRight: '1px solid black', paddingRight: '6px', height: '1em' }}>
+                        <p style={{ lineHeight: '1.1875em' }}>{detail.key}</p>
+                      </div>
+                      <p style={{ paddingLeft: '6px', lineHeight: '1.1875em' }}>{detail.value}</p>
+                    </div>
+                  ))
+                }
+              </CartItemDetail>
+              <FloatRemoveButtonWrapper>
+                {RemoveButton(item.id)}
+              </FloatRemoveButtonWrapper>
+            </CartItemInfo>
+            <CheckoutInfo>
+              <DropdownMenu idx={idx} selectedVariant={item} addItemToCart={addItemToCart} />
+              <DescriptionTag>
+                {idx === 0 ? <Title>單價</Title> : null}
+                <p>TWD.{Math.round(item.price)}</p>
+              </DescriptionTag>
+              <DescriptionTag>
+                {idx === 0 ? <Title>小計</Title> : null}
+                <p>TWD.{Math.round(item.price * item.quantity)}</p>
+              </DescriptionTag>
+              <RemoveButtonWrapper>
+                {RemoveButton(item.id)}
+              </RemoveButtonWrapper>
+            </CheckoutInfo>
+          </CartItemWrapper>
+        ))}
+      </ShoppingCartWrapper>
+    </>
+  )
 }
 
 export default CartItemList

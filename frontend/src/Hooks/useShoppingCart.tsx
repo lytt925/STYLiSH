@@ -34,6 +34,32 @@ const fetchProduct = async (id: number | undefined) => {
     return response.data.data
 }
 
+const deleteSoldOutItems = (productPromise: any, tempCartItems: CartItem[], setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>) => {
+    // 刪掉賣完的商品
+    Promise.all(productPromise).then((products) => {
+        const newCartItems = products.map((item: any, idx: number) => {
+            const matchingVariant = item.variants.find((variant: any) =>
+                variant.size === tempCartItems[idx].size &&
+                variant.color_code === tempCartItems[idx].color.code
+            );
+            return {
+                id: item.id,
+                title: item.title,
+                main_image: item.main_image,
+                price: item.price,
+                color: {
+                    code: tempCartItems[idx].color.code,
+                    name: tempCartItems[idx].color.name,
+                },
+                size: tempCartItems[idx].size,
+                quantity: tempCartItems[idx].quantity,
+                maxQty: matchingVariant.stock
+            }
+        })
+        setCartItems(newCartItems.filter((item: CartItem) => item.maxQty >= item.quantity));
+    })
+}
+
 const ShoppingCartProvider = ({ children }: { children: React.ReactNode }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
@@ -47,30 +73,7 @@ const ShoppingCartProvider = ({ children }: { children: React.ReactNode }) => {
             const productPromise = tempCartItems.map(async (item: CartItem) => {
                 return fetchProduct(item.id);
             })
-
-            // 刪掉賣完的商品
-            Promise.all(productPromise).then((products) => {
-                const newCartItems = products.map((item, idx: number) => {
-                    const matchingVariant = item.variants.find((variant: any) =>
-                        variant.size === tempCartItems[idx].size &&
-                        variant.color_code === tempCartItems[idx].color.code
-                    );
-                    return {
-                        id: item.id,
-                        title: item.title,
-                        main_image: item.main_image,
-                        price: item.price,
-                        color: {
-                            code: tempCartItems[idx].color.code,
-                            name: tempCartItems[idx].color.name,
-                        },
-                        size: tempCartItems[idx].size,
-                        quantity: tempCartItems[idx].quantity,
-                        maxQty: matchingVariant.stock
-                    }
-                })
-                setCartItems(newCartItems.filter((item: CartItem) => item.maxQty >= item.quantity));
-            })
+            deleteSoldOutItems(productPromise, tempCartItems, setCartItems);
         }
     }, []);
 

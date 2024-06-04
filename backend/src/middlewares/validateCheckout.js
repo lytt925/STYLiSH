@@ -1,6 +1,6 @@
 const { check, validationResult } = require('express-validator');
 
-validateCheckout = [
+let validateCheckout = [
   (req, res, next) => {
     if (!req.is('application/json')) {
       return res.status(400).json({ error: "Expects 'application/json'" });

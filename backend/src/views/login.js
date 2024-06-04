@@ -67,7 +67,7 @@ async function googleLogin(e) {
   }
 }
 
-loginToBackendWithGoogle = async (credential) => {
+const loginToBackendWithGoogle = async (credential) => {
   let stylishBackendApi;
   const target = window.location.hostname;
   const protocol = window.location.protocol;

@@ -10,7 +10,7 @@ function SearchInput() {
   const navigate = useNavigate();
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && e.keyCode !== 229) {
+    if (e.key === 'Enter') {
       performSearch();
     }
   };
@@ -33,11 +33,17 @@ function SearchInput() {
         onKeyDown={handleKeyPress}
         style={{ fontSize: '20px' }}
       />
-      <img
-        src={isSearchFocused ? SearchImageHover : SearchImage}
+      <button
+        className="h-10 w-10 absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer"
         onClick={performSearch}
-        alt="Search"
-        className="h-10 w-10 absolute right-2 top-1/2 transform -translate-y-1/2" />
+        type="button" // Set type to "button" to prevent form submission
+        aria-label="Search" // Add aria-label for screen readers
+      >
+        <img
+          src={isSearchFocused ? SearchImageHover : SearchImage}
+          alt="Search"
+        />
+      </button>
     </div>
   );
 }

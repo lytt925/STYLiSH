@@ -70,7 +70,7 @@ const useTappay = () => {
       /* ============================================== */
 
       // cardTypes = ['visa', 'mastercard', ...]
-      var newType = update.cardType === 'unknown' ? '' : update.cardType
+      let newType = update.cardType === 'unknown' ? '' : update.cardType
       $('#cardtype').text(newType)
 
 

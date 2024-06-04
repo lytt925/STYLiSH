@@ -2,7 +2,7 @@ const { body, validationResult } = require('express-validator');
 
 const isNameValid = (name) => {
   // Define a regular expression pattern that matches only English letters and digits
-  var pattern = /^[a-zA-Z0-9]+$/;
+  let pattern = /^[a-zA-Z0-9]+$/;
 
   // Use the test() method to check if the inputString matches the pattern
   return pattern.test(name);
@@ -10,7 +10,7 @@ const isNameValid = (name) => {
 
 const isEmailValid = (email) => {
   // Define a regular expression pattern for validating email addresses
-  var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   // Use the test() method to check if the email matches the pattern
   return emailPattern.test(email);
@@ -18,12 +18,12 @@ const isEmailValid = (email) => {
 
 const isPasswordValid = (password) => {
   // Define regular expressions for each character type
-  var uppercaseRegex = /[A-Z]/;
-  var lowercaseRegex = /[a-z]/;
-  var numberRegex = /[0-9]/;
+  let uppercaseRegex = /[A-Z]/;
+  let lowercaseRegex = /[a-z]/;
+  let numberRegex = /[0-9]/;
 
   // Count how many of the character types are present in the password
-  var characterTypesCount = 0;
+  let characterTypesCount = 0;
 
   if (uppercaseRegex.test(password)) {
     characterTypesCount++;

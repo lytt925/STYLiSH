@@ -4,8 +4,8 @@ async function nativeLogin() {
 
     const data = {
         "provider": "native",
-        "email": "testtest@gmail.com",
-        "password": "Test1234"
+        "email": process.env.REACT_APP_NATIVE_EMAIL,
+        "password": process.env.REACT_APP_NATIVE_PASSWORD
     }
 
     try {

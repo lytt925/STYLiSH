@@ -60,82 +60,80 @@ const signupUser = async (req, res) => {
 
 
 const signinUser = async (req, res) => {
-  const { provider, email, password, token: googleCred } = req.body
-
-  let user;
-  try {
-    if (provider === "google" && googleCred) {
-      const payload = await googleVerifyUser(googleCred);
-      const existUser = await UsersTable.getUserByEmail(payload.email)
-
-      if (existUser.length === 0) {
-        const newUser = await UsersTable.insertUser(
-          {
-            name: payload.name,
-            email: payload.email,
-            hash: null,
-            picture: payload.picture
-          })
-        if (newUser.affectedRows === 1) {
-          user = {
-            id: newUser.insertId,
-            provider: "google",
-            name: payload.name,
-            email: payload.email,
-            picture: payload.picture,
-          }
-          const response = generateSigninResponse(user)
-          return res.status(200).send(response)
-        }
-      }
-
-      if (existUser.length > 0) {
-        user = {
-          id: existUser[0].id,
-          provider: "google",
-          name: existUser[0].name,
-          email: existUser[0].email,
-          picture: existUser[0].picture,
-        }
-        const response = generateSigninResponse(user)
-        return res.status(200).send(response)
-      }
-    }
-  } catch (err) {
-    console.log(err);
-    return res.status(500).send({ error: "Internal Server Error" })
-  }
+  const { provider, email, password, token: googleCred } = req.body;
 
   try {
-    if (provider === "native" && (!email || !password)) {
-      return res.status(400).send({ error: "invalid request" });
+    const user = await handleSignin(provider, email, password, googleCred);
+    if (!user) {
+      return res.status(400).send({ error: "Invalid credentials" });
     }
 
-    const existUser = await UsersTable.getUserByEmail(email);
-    if (existUser.length === 0) {
-      return res.status(403).send({ error: "email not found" });
-    }
-
-    const result = await bcrypt.compare(password, existUser[0].password);
-    if (result) {
-      user = {
-        id: existUser[0].id,
-        provider: 'native',
-        name: existUser[0].name,
-        email: existUser[0].email,
-        picture: existUser[0].picture,
-      };
-      const response = generateSigninResponse(user)
-      return res.status(200).send(response)
-    } else {
-      return res.status(403).send({ error: "wrong password" });
-    }
-
+    const response = generateSigninResponse(user);
+    return res.status(200).send(response);
   } catch (err) {
-    console.log(err)
-    return res.status(500).send({ error: "Internal Server Error" })
+    console.error(err);
+    return res.status(500).send({ error: "Internal Server Error" });
   }
-}
+};
+
+const handleSignin = async (provider, email, password, googleCred) => {
+  if (provider === "google" && googleCred) {
+    const payload = await googleVerifyUser(googleCred);
+    return await handleGoogleSignin(payload);
+  } else if (provider === "native" && email && password) {
+    return await handleNativeSignin(email, password);
+  } else {
+    return null;
+  }
+};
+
+const handleGoogleSignin = async (payload) => {
+  const existingUser = await UsersTable.getUserByEmail(payload.email);
+  if (existingUser.length === 0) {
+    const newUser = await UsersTable.insertUser({
+      name: payload.name,
+      email: payload.email,
+      hash: null,
+      picture: payload.picture,
+    });
+
+    return {
+      id: newUser.insertId,
+      provider: "google",
+      name: payload.name,
+      email: payload.email,
+      picture: payload.picture,
+    };
+  }
+
+  return {
+    id: existingUser[0].id,
+    provider: "google",
+    name: existingUser[0].name,
+    email: existingUser[0].email,
+    picture: existingUser[0].picture,
+  };
+};
+
+const handleNativeSignin = async (email, password) => {
+  const existingUser = await UsersTable.getUserByEmail(email);
+  if (existingUser.length === 0) {
+    return null;
+  }
+
+  const passwordMatch = await bcrypt.compare(password, existingUser[0].password);
+  if (!passwordMatch) {
+    return null;
+  }
+
+  return {
+    id: existingUser[0].id,
+    provider: "native",
+    name: existingUser[0].name,
+    email: existingUser[0].email,
+    picture: existingUser[0].picture,
+  };
+};
 
 const generateSigninResponse = (user) => {
   // Create the access token after a new signin

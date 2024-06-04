@@ -15,20 +15,27 @@ const Navbar = ({ categoryList }: { categoryList: ReadonlyArray<Category> }) => 
       </div>
       <div className="hidden xl:flex xl:fixed top-0 z-20 px-14 py-4 h-[140px] justify-between items-center xl:bg-white " style={{ width: '100%', borderBottom: '40px solid black' }}>
         <div className="flex w-5/6 max-w-[826px]">
-          <img src={LogoImage} alt="STYLISH Logo" className="h-12 mr-[57px] cursor-pointer" onClick={() => navigate('/')} />
+          <button
+            className="h-12 mr-[57px] cursor-pointer"
+            onClick={() => navigate('/')}
+            type="button" // Set type to "button" to prevent form submission
+            aria-label="Go to home page" // Add aria-label for screen readers
+          >
+            <img src={LogoImage} alt="STYLISH Logo" />
+          </button>
           <div className="flex w-[55%] items-end p-1">
             {categoryList.map((category, index) => {
               const isLastItem = index === categoryList.length - 1;
               const borderClass = isLastItem ? '' : 'border-r-[1px]';
               return (
-                <div
+                <button
                   onClick={() => navigate(`/products/${category.name}`)}
                   key={category.name}
                   className={`w-1/3 h-5 flex justify-center text-center ${borderClass} border-black border-solid`}>
                   <div className={`text-[#3F3A3A] text-[20px] leading-5 hover:text-[#8B572A] tracking-[30px] `} >
                     <Link to={`/products/${category.name}`} className={`w-[100%] pl-[30px] hover:no-underline`}>{category.showName}</Link>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
